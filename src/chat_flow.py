@@ -23,9 +23,13 @@ class ChatFlow:
 
         agent_desc = input("Describe the agent (e.g., 'friend', 'romantic partner'): ").strip()
         self.chat_client.set_agent_desc(agent_desc)
+        
+        relationship_context = input("Provide more context about your relationship (e.g., 'We've been friends for 5 years but recently had a disagreement'): ").strip()
+        self.chat_client.set_relationship_context(relationship_context)
 
         situation = input("Describe the conflict scenario (e.g., 'Setting boundaries'): ").strip()
         self.chat_client.set_situation(situation)
+
 
     def run_conversation(self):
         """
@@ -35,7 +39,6 @@ class ChatFlow:
         while True:
             user_input = input("You: ")
             
-            # Handle commands
             if user_input.lower() == "!quit":
                 print("Exiting conversation...")
                 break
@@ -51,10 +54,13 @@ class ChatFlow:
                     print("You are already in conversation mode.")
                 continue
 
-            if not self.feedback_mode:
-                self.chat_client.get_response(user_input)
-                print('\n')
-
+            if not self.feedback_mode and user_input:
+                response = self.chat_client.get_response(user_input)
+                print(f"Bot: {response}\n")
+            else:
+                print("Please enter a valid message.")
+                
+                
     def generate_feedback(self):
         """
         Generate feedback or summary based on the current conversation.
@@ -62,6 +68,7 @@ class ChatFlow:
         print("\n--- Feedback Mode ---")
         print("Providing feedback... (Placeholder)")
         print("You can use !resume to continue the conversation or !quit to exit.")
+
 
     def start_flow(self):
         """
@@ -72,6 +79,7 @@ class ChatFlow:
         self.run_conversation()
         self.generate_report()
 
+
     def generate_report(self):
         """
         Generate a placeholder for a conversation summary report.
@@ -81,7 +89,7 @@ class ChatFlow:
 
 if __name__ == "__main__":
     try:
-        print("Running chat_flow.py...")
+        print("Starting Loqui...")
         flow = ChatFlow()
         flow.start_flow()
     except Exception as e:
