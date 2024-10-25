@@ -3,9 +3,11 @@ import os
 from together import Together
 import random
 
-categories = {"Cooperative": ["interests", "positive expectations", "proposal", "concession"], 
-                           "Neutral": ["facts", "procedural"],
-                           "Competitive": ["Power", "Rights"]}
+categories = {
+    "Cooperative": ["Interests", "Positive Expectations", "Proposal", "Concession"], 
+    "Neutral": ["Facts", "Procedural"],
+    "Competitive": ["Power", "Rights"]
+}
 
 class Strategy:
     def __init__(self, name, category, definition, example):
@@ -137,16 +139,22 @@ class ChatClient:
 
         :param user_utt: str, The user utterance
         """
-        # choose a random strategy based on agent type
-        strategy = random.choice(categories[self.agent_type])
+        try:
+            # choose a random strategy based on agent type
+            strategy = random.choice(categories[self.agent_type])
 
-        # build prompt
-        prompt = f"You are a {self.agent_type} {self.agent_desc} trying to get through a conflict involving {self.situation}. Your partner just said \"{user_utt}\". Formulate a response using the {strategy} strategy. This strategy is defined as {strategies[strategy].definition}. An example of a response using this strategy is \"{strategies[strategy].example}\"."
+            # build prompt
+            prompt = (f"You are a {self.agent_type} {self.agent_desc} trying to get through a conflict "
+                    f"involving {self.situation}. Your partner just said \"{user_utt}\". Formulate a response "
+                    f"using the {strategy} strategy. This strategy is defined as {strategies[strategy].definition}. "
+                    f"An example of a response using this strategy is \"{strategies[strategy].example}\".")
 
-        # prompt API
-        response = self.basic_prompt(prompt)
+            # prompt API
+            response = self.basic_prompt(prompt)
+            return response
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
 
-        return response
 
 '''
 Basic Usage Example:
