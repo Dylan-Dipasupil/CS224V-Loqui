@@ -3,9 +3,11 @@ import os
 from together import Together
 import random
 
-categories = {"Cooperative": ["interests", "positive expectations", "proposal", "concession"], 
-                           "Neutral": ["facts", "procedural"],
-                           "Competitive": ["Power", "Rights"]}
+categories = {
+    "Cooperative": ["Interests", "Positive Expectations", "Proposal", "Concession"], 
+    "Neutral": ["Facts", "Procedural"],
+    "Competitive": ["Power", "Rights"]
+}
 
 class Strategy:
     def __init__(self, name, category, definition, example):
@@ -13,6 +15,7 @@ class Strategy:
         self.category = category
         self.definition = definition
         self.example = example
+        
 
 # Define strategies TODO make more relationship-oriented
 strategies = {
@@ -74,8 +77,11 @@ class ChatClient:
         self.agent_type = ""  # One of: Cooperative, Neutral, Competitive
         self.agent_desc = "person"  # eg "romantic partner of 3 years" or "friend who wants to be more"
         self.situation = ""  # eg "Setting a boundary on spending too much time together"
+        self.conversation_history = [] # TODO(?)
+        self.relationship_context = ""  # user input about relationship
 
-    def basic_prompt(self, prompt, stream=True):
+
+    def basic_prompt(self, prompt, stream=False):
         """
         Sends a prompt to the chat model and returns the response.
 
@@ -83,7 +89,7 @@ class ChatClient:
         :param stream: bool, Whether to stream (print out word chunks as they come, like chatGPT does where it looks like it's typing) the response or not (default is True).
         """
         # call model
-        stream = self.client.chat.completions.create(
+        response = self.client.chat.completions.create(
             model=self.model,
             messages=[{"role": "user", "content": prompt}],
             stream=stream,
@@ -91,13 +97,12 @@ class ChatClient:
         
         # print out word chunks as they come
         if stream:
-            for chunk in stream:
+            for chunk in response:
                 print(chunk.choices[0].delta.content or "", end="", flush=True)
         # print out the whole response together
         else:
-            response = stream.read()
-            return response
-    
+            if hasattr(response, 'choices') and response.choices:
+                return response.choices[0].message.content
 
     def set_agent_type(self, type):
         """
@@ -106,9 +111,10 @@ class ChatClient:
         :param type: str, The agent type. One of: Cooperative, Neutral, Competitive
         """
         # check validity
-        if type in ["Cooperative", "Neutral", "Competitive"]:
+        normalized_type = type.lower().capitalize()
+        if normalized_type in ["Cooperative", "Neutral", "Competitive"]:
             # set var
-            self.agent_type = type
+            self.agent_type = normalized_type
         else:
             raise Exception("Not a valid agent type. Must be one of: Cooperative, Neutral, Competitive")
         
@@ -130,23 +136,55 @@ class ChatClient:
         """
         self.situation = situation
         
+    def set_relationship_context(self, context):
+        """
+        Sets the relationship context variable
+
+        :param context: str, Describes the user's relationship context
+        """
+        self.relationship_context = context
+        
 
     def get_response(self, user_utt):
         """
-        Responds to a user utterance during a simulated dialogue. Assumes each API call is independent and there is no "conversation" feature, TODO see if this is the case
-
+        Responds to a user utterance during a simulated dialogue.
+        
         :param user_utt: str, The user utterance
         """
-        # choose a random strategy based on agent type
-        strategy = random.choice(categories[self.agent_type])
+        try:
+            # choose a random strategy based on agent type
+            strategy = random.choice(categories[self.agent_type])
 
-        # build prompt
-        prompt = f"You are a {self.agent_type} {self.agent_desc} trying to get through a conflict involving {self.situation}. Your partner just said \"{user_utt}\". Formulate a response using the {strategy} strategy. This strategy is defined as {strategies[strategy].definition}. An example of a response using this strategy is \"{strategies[strategy].example}\"."
+            # Construct the conversation context from the history
+            
+            # conversation_context = "\n".join([
+            #     f"User: {message['content']}" if message["role"] == "user" else f"Bot: {message['content']}"
+            #     for message in self.conversation_history
+            # ])
 
-        # prompt API
-        response = self.basic_prompt(prompt)
+            # build prompt
+            prompt = (
+                f"You are a {self.agent_type} {self.agent_desc} trying to get through a conflict "
+                f"involving {self.situation}. The context of your relationship is: '{self.relationship_context}'. "
+                f"Your partner just said \"{user_utt}\". "
+                f"Formulate a response using the {strategy} strategy. This strategy is defined as {strategies[strategy].definition}. "
+                f"An example of a response using this strategy is \"{strategies[strategy].example}\" "
+                f"Respond in the first person and keep the response short and sweet as if over text message."
+            )
 
-        return response
+            # prompt API
+            response = self.basic_prompt(prompt).strip('"')
+            
+            # Update the conversation history
+            # self.conversation_history.append({"role": "user", "content": user_utt})
+            # self.conversation_history.append({"role": "assistant", "content": response})
+
+            return response
+
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
+
+
 
 '''
 Basic Usage Example:
