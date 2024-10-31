@@ -1,12 +1,17 @@
 # src/chat_flow.py: Main conversation flow for chatbot simulation
+import os
+import argparse
+from datetime import datetime
 
 from llm import ChatClient
 
 class ChatFlow:
-    def __init__(self):
+    def __init__(self, save_log=False):
         print("Initializing ChatFlow...")
         self.chat_client = ChatClient()
         self.feedback_mode = False
+        self.chat_log = []  # Store chat messages in sequence
+        self.save_log = save_log  # Toggle chat log saving
 
     def setup_agent(self):
         """
@@ -41,6 +46,9 @@ class ChatFlow:
             
             if user_input.lower() == "!quit":
                 print("Exiting conversation...")
+                if self.save_log:
+                    self.save_chat_log()
+                print("Chat log saved. Exiting program.")
                 break
             elif user_input.lower() == "!feedback":
                 self.generate_feedback()
@@ -55,8 +63,12 @@ class ChatFlow:
                 continue
 
             if not self.feedback_mode and user_input:
-                response = self.chat_client.get_response(user_input)
+                response = self.chat_client.get_response(user_input, self.chat_log)
                 print(f"Bot: {response}\n")
+
+                # Log the conversation turn
+                self.chat_log.append(f"You: {user_input}")
+                self.chat_log.append(f"Bot: {response}")
             else:
                 print("Please enter a valid message.")
                 
@@ -86,11 +98,48 @@ class ChatFlow:
         """
         print("\n--- Conversation Summary ---")
         print("Here is your report.")
+    
+    def save_chat_log(self):
+        """
+        Save the chat log to a timestamped text file in a 'logs' folder.
+        """
+        log_dir = "logs"
+        os.makedirs(log_dir, exist_ok=True)
+        
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"{log_dir}/chat_log_{timestamp}.txt"
+
+        # Pull agent configuration from self.chat_client
+        header = [
+            "Chat Log Summary:",
+            f"Agent Type: {self.chat_client.agent_type}",
+            f"Agent Description: {self.chat_client.agent_desc}",
+            f"Relationship Context: {self.chat_client.relationship_context}",
+            f"Conflict Scenario: {self.chat_client.situation}",
+            "-" * 40  # Separator line
+        ]
+
+        # Combine header and chat log
+        full_log = header + self.chat_log
+
+        # Write the header and chat log to file
+        with open(filename, "w") as file:
+            file.write("\n".join(full_log))
+        
+        print(f"Chat log saved to {filename}")
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run the Loqui chatbot.")
+    parser.add_argument("--save_log", action="store_true", help="Enable chat log saving")
+    args = parser.parse_args()
+
     try:
         print("Starting Loqui...")
-        flow = ChatFlow()
+        flow = ChatFlow(save_log=args.save_log)
         flow.start_flow()
+    except KeyboardInterrupt:
+        if flow.save_log:
+            flow.save_chat_log()
+        print("Chat log saved. Exiting program.")
     except Exception as e:
         print(f"An error occurred: {e}")

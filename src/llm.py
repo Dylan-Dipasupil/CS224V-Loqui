@@ -77,7 +77,6 @@ class ChatClient:
         self.agent_type = ""  # One of: Cooperative, Neutral, Competitive
         self.agent_desc = "person"  # eg "romantic partner of 3 years" or "friend who wants to be more"
         self.situation = ""  # eg "Setting a boundary on spending too much time together"
-        self.conversation_history = [] # TODO(?)
         self.relationship_context = ""  # user input about relationship
 
 
@@ -145,7 +144,7 @@ class ChatClient:
         self.relationship_context = context
         
 
-    def get_response(self, user_utt):
+    def get_response(self, user_utt, chat_log):
         """
         Responds to a user utterance during a simulated dialogue.
         

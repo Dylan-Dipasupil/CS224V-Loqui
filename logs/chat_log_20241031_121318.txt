@@ -1,0 +1,14 @@
+Chat Log Summary:
+Agent Type: Neutral
+Agent Description: friend
+Relationship Context: We've been college buddies for 3 years
+Conflict Scenario: Setting boundaries
+----------------------------------------
+You: Hi I need more time alone
+Bot: Hey, I've noticed we've been hanging out a lot lately and I've been feeling a bit overwhelmed. Can you tell me what's been going on and what you mean by needing more time alone? Is everything okay?
+You: Yeah, we've just been hanging out a lot more lately and I need to recharge my social battery
+Bot: Hey, I'm glad we've been hanging out a lot lately, but I wanted to talk to you about it. Can we discuss what you mean by needing to recharge your social battery? Is there something specific that's making you feel overwhelmed?
+You: Just the frequencyu
+Bot: Hey, I'm not sure what you mean by 'just the frequency'. Can you clarify what you're referring to? I feel like we've been pretty consistent with our hangouts and study sessions over the past 3 years. What's changed?
+You: No, we've been partyingh a lot more together lately
+Bot: Hey, I wanted to touch base with you about us hanging out lately. I feel like we've been partying a lot more together, and I'm not sure if that's what we both want. Can we discuss our priorities and boundaries?
