@@ -106,7 +106,7 @@ class ChatFlow:
         log_dir = "logs"
         os.makedirs(log_dir, exist_ok=True)
         
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.now().strftime("Y%Y_M%m_D%d_H%H_M%M_S%S")
         filename = f"{log_dir}/chat_log_{timestamp}.txt"
 
         # Pull agent configuration from self.chat_client

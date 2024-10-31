@@ -1,0 +1,12 @@
+Chat Log Summary:
+Agent Type: Neutral
+Agent Description: friend
+Relationship Context: We've been college buddies 3 years
+Conflict Scenario: setting boundaries
+----------------------------------------
+You: Hi. I need more space.
+Bot: Hey, I'm a bit confused - what's been going on that's making you feel like you need more space? I feel like we've been pretty good about checking in and hanging out lately. Can you help me understand what's changed?
+You: My social battery has been running low and all the times we've been hanging out have been wearing me out.
+Bot: Hey, I'm sorry to hear that our hangouts have been wearing you out. I've been thinking we've been pretty consistent with our plans over the past 3 years, but I want to make sure I'm not overstepping. Can you help me understand what specifically has been draining your social battery lately? Is it the frequency, type of activities, or something else?
+You: Frequency for sure; I just need more time to recover
+Bot: Hey, I'm not sure I understand what you mean by 'more time to recover'. Can you remind me what's been going on and what's changed since we last hung out? I feel like we've been pretty consistent with our hangouts over the past 3 years, and I'm not sure what's different now.
