@@ -2,6 +2,7 @@
 import os
 from together import Together
 import random
+import difflib
 
 categories = {
     "Cooperative": ["Interests", "Positive Expectations", "Proposal", "Concession"], 
@@ -102,6 +103,38 @@ class ChatClient:
         else:
             if hasattr(response, 'choices') and response.choices:
                 return response.choices[0].message.content
+    
+    def classify_strategy(self, user_input):
+        """
+        Use LLM to classify the strategy of a given user input.
+        
+        :param user_input: str, The user's message to be classified.
+        :return: str, The identified strategy.
+        """
+        strategies_description = []
+        for strategy_name, strategy in strategies.items():
+            strategies_description.append(
+                f"{strategy.category} ({strategy_name}): {strategy.definition}"
+            )
+        strategies_text = "\n".join(strategies_description)
+
+        prompt = (
+        f"Based on the following strategies, identify the single most relevant strategy for the given message. "
+        f"Only respond with the name of the strategy, without any additional text or formatting.\n"
+        f"{strategies_text}\n\n"
+        f"The message is: \"{user_input}\"\n\n"
+        f"Respond with only the strategy name."
+    )
+
+        strategy = self.basic_prompt(prompt, stream=False).strip()
+
+        if "(" in strategy:
+            strategy = strategy.split("(")[1].strip(")") 
+
+        if strategy not in strategies:
+            print(f"Warning: LLM returned unrecognized strategy '{strategy}'")
+            
+        return strategy
 
     def set_agent_type(self, type):
         """

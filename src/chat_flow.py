@@ -3,7 +3,7 @@ import os
 import argparse
 from datetime import datetime
 
-from llm import ChatClient
+from llm import ChatClient, strategies, categories
 
 class ChatFlow:
     def __init__(self, save_log=False):
@@ -12,6 +12,7 @@ class ChatFlow:
         self.feedback_mode = False
         self.chat_log = []  # Store chat messages in sequence
         self.save_log = save_log  # Toggle chat log saving
+        self.user_strategy_usage = {key: 0 for key in categories.keys()}  
 
     def setup_agent(self):
         """
@@ -69,8 +70,16 @@ class ChatFlow:
                 # Log the conversation turn
                 self.chat_log.append(f"You: {user_input}")
                 self.chat_log.append(f"Bot: {response}")
+
+                strategy = self.chat_client.classify_strategy(user_input)
+                if strategy in strategies:
+                    category = strategies[strategy].category  # Find the main category
+                    self.user_strategy_usage[category] += 1
+
             else:
                 print("Please enter a valid message.")
+            
+            
                 
                 
     def generate_feedback(self):
@@ -79,6 +88,14 @@ class ChatFlow:
         """
         print("\n--- Feedback Mode ---")
         print("Providing feedback... (Placeholder)")
+
+        total_messages = sum(self.user_strategy_usage.values())
+        for category, count in self.user_strategy_usage.items():
+            if count > 0:
+                percentage = (count / total_messages) * 100
+                print(f"{category}: {count} times ({percentage:.2f}%)")
+            else:
+                print(f"{category}: Not used")
         print("You can use !resume to continue the conversation or !quit to exit.")
 
 

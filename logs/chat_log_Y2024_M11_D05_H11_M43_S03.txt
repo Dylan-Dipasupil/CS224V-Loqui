@@ -1,0 +1,12 @@
+Chat Log Summary:
+Agent Type: Neutral
+Agent Description: romantic partner
+Relationship Context: we've been dating 6 months but recently they've been clingy
+Conflict Scenario: setting boundaries
+----------------------------------------
+You: Hi, I really enjoy our time together but lately it's been too much for me.
+Bot: I've noticed you've been reaching out more frequently lately, and I've felt a bit overwhelmed. Can you tell me what's been going on from your perspective? Is there something specific that's changed for you, or is it just a general feeling?
+You: I think it's just a social battery thing; I need more time alone to recharge
+Bot: I've noticed you've been needing more space lately, and to be honest, it's been making me feel a bit uncertain about our relationship. Can you help me understand what you mean by 'social battery' and how it's affecting you? I want to make sure I'm not overstepping any boundaries.
+You: It's nothing about our relationship, I love where we're at, I just want to slighly decrease how much time we're spending together; I want some alone time to just relax sometimesa.
+Bot: Hey, I'm glad you love where we're at in our relationship. I want to make sure I understand what you mean by wanting to decrease our time together. Can we talk about what you mean by 'slightly' and what you're looking for in terms of alone time? I want to make sure I'm on the same page as you.
