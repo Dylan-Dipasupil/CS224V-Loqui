@@ -106,7 +106,7 @@ class ChatClient:
             if hasattr(response, 'choices') and response.choices:
                 return response.choices[0].message.content.strip('"')
             
-            
+
     def classify_strategy(self, user_input):
         """
         Use LLM to classify the strategy of a given user input.
@@ -273,7 +273,17 @@ class ChatClient:
 
         # TODO integrate more specific feedback like offering alternatives to "bad" utterances
         # TODO shorten prompt? 
-        prompt = f"You are evaluating how well a user is doing in a difficult conversation involving {self.situation}. The other person is the user's {self.agent_desc}. The other person is described as: '{self.relationship_context}. Give the user constructive feedback on what they've been doing well, and what they should improve on. Below are the descriptions and examples for each strategy, and statistics for how often the user uses each strategy. Note: it is more productive to use cooperative or neutral strategies. \n\n{strategies}\n\n{stats_report_str}"
+        prompt = f"""You are evaluating how well a user is doing in a difficult conversation involving {self.situation}. 
+        
+        The other person is the user's {self.agent_desc}. The other person is described as: '{self.relationship_context}. 
+        
+        Give the user constructive feedback on what they've been doing well, and what they should improve on. 
+        
+        Below are the descriptions and examples for each strategy, and statistics for how often the user uses each strategy. Note: it is more productive to use cooperative or neutral strategies.
+        
+        {strategies}
+
+        {stats_report_str}"""
 
         natural_feedback = self.basic_prompt(prompt)
 
