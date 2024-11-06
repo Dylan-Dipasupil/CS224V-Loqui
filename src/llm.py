@@ -105,6 +105,35 @@ class ChatClient:
         else:
             if hasattr(response, 'choices') and response.choices:
                 return response.choices[0].message.content.strip('"')
+            
+            
+    def classify_strategy(self, user_input):
+        """
+        Use LLM to classify the strategy of a given user input.
+        
+        :param user_input: str, The user's message to be classified.
+        :return: str, The identified strategy.
+        """
+        strategies_description = []
+        for strategy_name, strategy in strategies.items():
+            strategies_description.append(
+                f"{strategy.category} ({strategy_name}): {strategy.definition}"
+            )
+        strategies_text = "\n".join(strategies_description)
+        prompt = (
+        f"Based on the following strategies, identify the single most relevant strategy for the given message. "
+        f"Only respond with the name of the strategy, without any additional text or formatting.\n"
+        f"{strategies_text}\n\n"
+        f"The message is: \"{user_input}\"\n\n"
+        f"Respond with only the strategy name."
+    )
+        strategy = self.basic_prompt(prompt, stream=False).strip()
+        if "(" in strategy:
+            strategy = strategy.split("(")[1].strip(")") 
+        if strategy not in strategies:
+            print(f"Warning: LLM returned unrecognized strategy '{strategy}'")
+            
+        return strategy
 
     def set_agent_type(self, type):
         """
@@ -189,6 +218,7 @@ class ChatClient:
         Responds to a user utterance during a simulated dialogue.
         
         :param user_utt: str, The user utterance
+        :param chat_log: list, all utterances thus far (not including most recent user_utt)
         """
         try:
             # choose a random strategy based on agent type
@@ -233,11 +263,18 @@ class ChatClient:
         except Exception as e:
             print(f"An unexpected error occurred: {e}")
 
+    def get_feedback(self, stats_report):
+        """
+        Gives natural-language feedback based on the stats report of the user's utterances so far
+        
+        :param stats_report: list of strings describing statistics for how often the user uses each strategy
+        """
+        stats_report_str = "\n".join(stats_report)
 
+        # TODO integrate more specific feedback like offering alternatives to "bad" utterances
+        # TODO shorten prompt? 
+        prompt = f"You are evaluating how well a user is doing in a difficult conversation involving {self.situation}. The other person is the user's {self.agent_desc}. The other person is described as: '{self.relationship_context}. Give the user constructive feedback on what they've been doing well, and what they should improve on. Below are the descriptions and examples for each strategy, and statistics for how often the user uses each strategy. Note: it is more productive to use cooperative or neutral strategies. \n\n{strategies}\n\n{stats_report_str}"
 
-'''
-Basic Usage Example:
+        natural_feedback = self.basic_prompt(prompt)
 
-chat_client = ChatClient()
-chat_client.basic_prompt("What are some fun things to do in New York?")
-'''
+        return natural_feedback
