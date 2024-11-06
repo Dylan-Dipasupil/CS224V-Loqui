@@ -64,7 +64,7 @@ class ChatFlow:
 
             if not self.feedback_mode and user_input:
                 response = self.chat_client.get_response(user_input, self.chat_log)
-                print(f"Bot: {response}\n")
+                print(f"Bot: {response}")
 
                 # Log the conversation turn
                 self.chat_log.append(f"You: {user_input}")
@@ -140,6 +140,5 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         if flow.save_log:
             flow.save_chat_log()
-        print("Chat log saved. Exiting program.")
     except Exception as e:
         print(f"An error occurred: {e}")
