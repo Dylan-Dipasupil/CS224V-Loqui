@@ -3,6 +3,7 @@ import os
 from together import Together
 import random
 import json
+import difflib
 
 categories = {
     "Cooperative": ["Interests", "Positive Expectations", "Proposal", "Concession"], 
