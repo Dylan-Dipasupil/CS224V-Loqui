@@ -12,7 +12,8 @@ class ChatFlow:
         self.feedback_mode = False
         self.chat_log = []  # Store chat messages in sequence
         self.save_log = save_log  # Toggle chat log saving
-        self.user_strategy_usage = {key: 0 for key in categories.keys()}  
+        self.user_strategy_usage = {key: 0 for key in categories.keys()}
+        self.just_gave_feedback = False  
 
     def setup_agent(self):
         """
@@ -49,10 +50,10 @@ class ChatFlow:
                 print("Exiting conversation...")
                 if self.save_log:
                     self.save_chat_log()
-                print("Chat log saved. Exiting program.")
                 break
             elif user_input.lower() == "!feedback":
                 self.generate_feedback()
+                self.just_gave_feedback = True
                 self.feedback_mode = True
                 continue
             elif user_input.lower() == "!resume":
@@ -66,6 +67,7 @@ class ChatFlow:
             if not self.feedback_mode and user_input:
                 response = self.chat_client.get_response(user_input, self.chat_log)
                 print(f"Bot: {response}")
+                self.just_gave_feedback = False
 
                 # Log the conversation turn
                 self.chat_log.append(f"You: {user_input}")
@@ -80,22 +82,34 @@ class ChatFlow:
                 print("Please enter a valid message.")
             
             
-                
-                
     def generate_feedback(self):
         """
         Generate feedback or summary based on the current conversation.
         """
         print("\n--- Feedback Mode ---")
-        print("Providing feedback... (Placeholder)")
+
+        stats_report = []
 
         total_messages = sum(self.user_strategy_usage.values())
         for category, count in self.user_strategy_usage.items():
             if count > 0:
                 percentage = (count / total_messages) * 100
-                print(f"{category}: {count} times ({percentage:.2f}%)")
+                cat_stats = f"{category}: {count} times ({percentage:.2f}%)"
             else:
-                print(f"{category}: Not used")
+                cat_stats = f"{category}: Not used"
+
+            stats_report.append(cat_stats)
+            print(cat_stats)
+            print()
+
+        # generate natural-sounding feedback based on stats report
+        natural_feedback = self.chat_client.get_feedback(stats_report)
+        print(natural_feedback)
+        print()
+
+        # add feedback to chat log
+        self.chat_log.append(f"Feedback: {" ".join(cat_stats)}\n\n{natural_feedback}")
+
         print("You can use !resume to continue the conversation or !quit to exit.")
 
 
@@ -106,15 +120,10 @@ class ChatFlow:
         print("Starting conversation flow...")
         self.setup_agent()
         self.run_conversation()
-        self.generate_report()
+        # catch so you don't give them two feedback reports in a row
+        if not self.just_gave_feedback:
+            self.generate_feedback()
 
-
-    def generate_report(self):
-        """
-        Generate a placeholder for a conversation summary report.
-        """
-        print("\n--- Conversation Summary ---")
-        print("Here is your report.")
     
     def save_chat_log(self):
         """
