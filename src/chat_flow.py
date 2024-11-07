@@ -1,12 +1,19 @@
 # src/chat_flow.py: Main conversation flow for chatbot simulation
+import os
+import argparse
+from datetime import datetime
 
-from llm import ChatClient
+from llm import ChatClient, strategies, categories
 
 class ChatFlow:
-    def __init__(self):
+    def __init__(self, save_log=False):
         print("Initializing ChatFlow...")
         self.chat_client = ChatClient()
         self.feedback_mode = False
+        self.chat_log = []  # Store chat messages in sequence
+        self.save_log = save_log  # Toggle chat log saving
+        self.user_strategy_usage = {key: 0 for key in categories.keys()}
+        self.just_gave_feedback = False  
 
     def setup_agent(self):
         """
@@ -41,9 +48,12 @@ class ChatFlow:
             
             if user_input.lower() == "!quit":
                 print("Exiting conversation...")
+                if self.save_log:
+                    self.save_chat_log()
                 break
             elif user_input.lower() == "!feedback":
                 self.generate_feedback()
+                self.just_gave_feedback = True
                 self.feedback_mode = True
                 continue
             elif user_input.lower() == "!resume":
@@ -55,18 +65,51 @@ class ChatFlow:
                 continue
 
             if not self.feedback_mode and user_input:
-                response = self.chat_client.get_response(user_input)
-                print(f"Bot: {response}\n")
+                response = self.chat_client.get_response(user_input, self.chat_log)
+                print(f"Bot: {response}")
+                self.just_gave_feedback = False
+
+                # Log the conversation turn
+                self.chat_log.append(f"You: {user_input}")
+                self.chat_log.append(f"Bot: {response}")
+
+                strategy = self.chat_client.classify_strategy(user_input)
+                if strategy in strategies:
+                    category = strategies[strategy].category  # Find the main category
+                    self.user_strategy_usage[category] += 1
+
             else:
                 print("Please enter a valid message.")
-                
-                
+            
+            
     def generate_feedback(self):
         """
         Generate feedback or summary based on the current conversation.
         """
         print("\n--- Feedback Mode ---")
-        print("Providing feedback... (Placeholder)")
+
+        stats_report = []
+
+        total_messages = sum(self.user_strategy_usage.values())
+        for category, count in self.user_strategy_usage.items():
+            if count > 0:
+                percentage = (count / total_messages) * 100
+                cat_stats = f"{category}: {count} times ({percentage:.2f}%)"
+            else:
+                cat_stats = f"{category}: Not used"
+
+            stats_report.append(cat_stats)
+            print(cat_stats)
+            print()
+
+        # generate natural-sounding feedback based on stats report
+        natural_feedback = self.chat_client.get_feedback(stats_report)
+        print(natural_feedback)
+        print()
+
+        # add feedback to chat log
+        self.chat_log.append(f"Feedback: {" ".join(cat_stats)}\n\n{natural_feedback}")
+
         print("You can use !resume to continue the conversation or !quit to exit.")
 
 
@@ -77,20 +120,51 @@ class ChatFlow:
         print("Starting conversation flow...")
         self.setup_agent()
         self.run_conversation()
-        self.generate_report()
+        # catch so you don't give them two feedback reports in a row
+        if not self.just_gave_feedback:
+            self.generate_feedback()
 
+    
+    def save_chat_log(self):
+        """
+        Save the chat log to a timestamped text file in a 'logs' folder.
+        """
+        log_dir = "logs"
+        os.makedirs(log_dir, exist_ok=True)
+        
+        timestamp = datetime.now().strftime("Y%Y_M%m_D%d_H%H_M%M_S%S")
+        filename = f"{log_dir}/chat_log_{timestamp}.txt"
 
-    def generate_report(self):
-        """
-        Generate a placeholder for a conversation summary report.
-        """
-        print("\n--- Conversation Summary ---")
-        print("Here is your report.")
+        # Pull agent configuration from self.chat_client
+        header = [
+            "Chat Log Summary:",
+            f"Agent Type: {self.chat_client.agent_type}",
+            f"Agent Description: {self.chat_client.agent_desc}",
+            f"Relationship Context: {self.chat_client.relationship_context}",
+            f"Conflict Scenario: {self.chat_client.situation}",
+            "-" * 40  # Separator line
+        ]
+
+        # Combine header and chat log
+        full_log = header + self.chat_log
+
+        # Write the header and chat log to file
+        with open(filename, "w") as file:
+            file.write("\n".join(full_log))
+        
+        print(f"Chat log saved to {filename}")
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run the Loqui chatbot.")
+    parser.add_argument("--save_log", action="store_true", help="Enable chat log saving")
+    args = parser.parse_args()
+
     try:
         print("Starting Loqui...")
-        flow = ChatFlow()
+        flow = ChatFlow(save_log=args.save_log)
         flow.start_flow()
+    except KeyboardInterrupt:
+        if flow.save_log:
+            flow.save_chat_log()
     except Exception as e:
         print(f"An error occurred: {e}")

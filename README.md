@@ -14,3 +14,33 @@ Conflicts are inevitable in relationships, but how we handle them can make all t
 - **Feedback Reports**: Provides detailed feedback on conversational patterns and suggestions for more effective communication.
 - **Agent Types**: Choose from cooperative, neutral, or challenging agents for a more tailored practice experience.
 - **Continuous Improvement**: Regular user testing ensures realistic interaction and useful suggestions.
+
+---
+
+## Installation
+
+1. **Clone the Repository**:
+    ```bash
+    git clone https://github.com/yourusername/CS224V-Loqui.git
+    cd CS224V-Loqui
+    ```
+
+2. **Install Requirements**:
+    Ensure you have Python installed. Install dependencies with:
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+---
+
+## Running Loqui
+
+To start a conversation simulation, run the following command:
+
+```bash
+python src/chat_flow.py
+```
+To save your conversation logs, you can use the --save_log option. This will create a log file in a designated log folder, including a header detailing all the bot settings for that session.
+```bash
+python src/chat_flow.py --save_log
+```
