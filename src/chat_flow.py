@@ -5,6 +5,8 @@ from datetime import datetime
 
 from llm import ChatClient, strategies, categories
 
+LINE = "-"*40
+
 class ChatFlow:
     def __init__(self, save_log=False):
         print("Initializing ChatFlow...")
@@ -34,7 +36,7 @@ class ChatFlow:
         relationship_context = input("Provide more context about your relationship (e.g., 'We've been friends for 5 years but recently had a disagreement'): ").strip()
         self.chat_client.set_relationship_context(relationship_context)
 
-        situation = input("Describe the conflict scenario (e.g., 'Setting boundaries'): ").strip()
+        situation = input("Describe the problem you want to address (e.g., 'Setting boundaries about personal space'): ").strip()
         self.chat_client.set_situation(situation)
 
 
@@ -46,16 +48,22 @@ class ChatFlow:
         while True:
             user_input = input("You: ")
             
+            # QUIT
             if user_input.lower() == "!quit":
+                if not self.just_gave_feedback:
+                    self.generate_feedback()
+                    print()
                 print("Exiting conversation...")
                 if self.save_log:
                     self.save_chat_log()
                 break
+            # FEEDBACK
             elif user_input.lower() == "!feedback":
                 self.generate_feedback()
                 self.just_gave_feedback = True
                 self.feedback_mode = True
                 continue
+            # RESUME
             elif user_input.lower() == "!resume":
                 if self.feedback_mode:
                     print("Resuming conversation...")
@@ -100,16 +108,15 @@ class ChatFlow:
 
             stats_report.append(cat_stats)
             print(cat_stats)
-            print()
 
-        # generate natural-sounding feedback based on stats report
+        print("-" * 15)  # seperator line
+        # generate & stream natural-sounding feedback based on stats report
         natural_feedback = self.chat_client.get_feedback(stats_report)
-        print(natural_feedback)
         print()
 
         # add feedback to chat log
-        cat_stats_str = " ".join(cat_stats)
-        self.chat_log.append(f"Feedback: {cat_stats_str}\n\n{natural_feedback}")
+        stats_str = " ".join(stats_report)
+        self.chat_log.append(f"Feedback:\n{stats_str}\n\n{natural_feedback}")
 
         print("You can use !resume to continue the conversation or !quit to exit.")
 
@@ -121,9 +128,6 @@ class ChatFlow:
         print("Starting conversation flow...")
         self.setup_agent()
         self.run_conversation()
-        # catch so you don't give them two feedback reports in a row
-        if not self.just_gave_feedback:
-            self.generate_feedback()
 
     
     def save_chat_log(self):
@@ -143,7 +147,7 @@ class ChatFlow:
             f"Agent Description: {self.chat_client.agent_desc}",
             f"Relationship Context: {self.chat_client.relationship_context}",
             f"Conflict Scenario: {self.chat_client.situation}",
-            "-" * 40  # Separator line
+            LINE  # Separator line
         ]
 
         # Combine header and chat log

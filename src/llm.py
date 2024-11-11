@@ -101,10 +101,10 @@ class ChatClient:
         if stream:
             for chunk in response:
                 print(chunk.choices[0].delta.content or "", end="", flush=True)
-        # print out the whole response together
-        else:
-            if hasattr(response, 'choices') and response.choices:
-                return response.choices[0].message.content.strip('"')
+        
+        # return entire response
+        if hasattr(response, 'choices') and response.choices:
+            return response.choices[0].message.content.strip('"')
             
 
     def classify_strategy(self, user_input):
@@ -178,8 +178,8 @@ class ChatClient:
     def set_agent_context(self, strategy):
         # build agent context
         self.agent_context = (
-            f"You are a {self.agent_type} {self.agent_desc} trying to get through a conflict "
-            f"involving {self.situation}. Your relationship with the user is: '{self.relationship_context}'. "
+            f"You are a {self.agent_type} {self.agent_desc} in a conversation about a conflict "
+            f"that the user describes as \"{self.situation}\". The user describes you as: \"{self.relationship_context}\". "
             f"Formulate a response using the {strategy} strategy. This strategy is defined as \"{strategies[strategy].definition}\" "
             f"An example of a response using this strategy is \"{strategies[strategy].example}\" "
             f"Respond in the first person and keep the response short and sweet as if over text message."
