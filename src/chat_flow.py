@@ -109,14 +109,15 @@ class ChatFlow:
             stats_report.append(cat_stats)
             print(cat_stats)
 
-        print("-" * 15)  # seperator line
+        seperator = "-" * 15
+        print(seperator)  # seperator line
         # generate & stream natural-sounding feedback based on stats report
         natural_feedback = self.chat_client.get_feedback(stats_report)
         print()
 
         # add feedback to chat log
-        stats_str = " ".join(stats_report)
-        self.chat_log.append(f"Feedback:\n{stats_str}\n\n{natural_feedback}")
+        stats_str = "\n".join(stats_report)
+        self.chat_log.append(f"Feedback:\n{stats_str}\n{seperator}\n{natural_feedback}")
 
         print("You can use !resume to continue the conversation or !quit to exit.")
 

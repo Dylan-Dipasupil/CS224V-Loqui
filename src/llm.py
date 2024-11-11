@@ -99,12 +99,20 @@ class ChatClient:
         
         # print out word chunks as they come
         if stream:
+            full_resp = ""
             for chunk in response:
-                print(chunk.choices[0].delta.content or "", end="", flush=True)
+                chunk_str = chunk.choices[0].delta.content or ""
+                print(chunk_str, end="", flush=True)
+                full_resp += chunk_str
+
+            return full_resp
         
-        # return entire response
-        if hasattr(response, 'choices') and response.choices:
-            return response.choices[0].message.content.strip('"')
+        # return entire response as one
+        else:
+            if hasattr(response, 'choices') and response.choices:
+                return response.choices[0].message.content.strip('"')
+            else:
+                return "Error in generating or saving response"
             
 
     def classify_strategy(self, user_input):
@@ -178,11 +186,7 @@ class ChatClient:
     def set_agent_context(self, strategy):
         # build agent context
         self.agent_context = (
-            f"You are a {self.agent_type} {self.agent_desc} in a conversation about a conflict "
-            f"that the user describes as \"{self.situation}\". The user describes you as: \"{self.relationship_context}\". "
-            f"Formulate a response using the {strategy} strategy. This strategy is defined as \"{strategies[strategy].definition}\" "
-            f"An example of a response using this strategy is \"{strategies[strategy].example}\" "
-            f"Respond in the first person and keep the response short and sweet as if over text message."
+            f"You are the user's {self.agent_desc}. You are a {self.agent_type} person in a conversation about a conflict that the user describes as \"{self.situation}\". The user describes you as: \"{self.relationship_context}\". Formulate a response using the {strategy} strategy. This strategy is defined as \"{strategies[strategy].definition}\" An example of a response using this strategy is \"{strategies[strategy].example}\" Respond in the first person and keep the response short and sweet as if over text message."
         )
 
     def format_messages(self, chat_log, user_utt):
