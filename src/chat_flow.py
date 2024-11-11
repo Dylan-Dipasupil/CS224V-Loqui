@@ -108,7 +108,8 @@ class ChatFlow:
         print()
 
         # add feedback to chat log
-        self.chat_log.append(f"Feedback: {" ".join(cat_stats)}\n\n{natural_feedback}")
+        cat_stats_str = " ".join(cat_stats)
+        self.chat_log.append(f"Feedback: {cat_stats_str}\n\n{natural_feedback}")
 
         print("You can use !resume to continue the conversation or !quit to exit.")
 
