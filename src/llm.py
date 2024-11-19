@@ -49,19 +49,19 @@ strategies = {
         name="Facts",
         category="Neutral",
         definition="Sharing information on the context or history of the issue, including requests for clarification or summaries.",
-        example="I didn't realize you felt this way - we haven't talked about it for a while."
+        example="We haven't talked about it for a while, so I did not know how you were feeling."
     ),
     "Procedural": Strategy(
         name="Procedural",
         category="Neutral",
         definition="Introductory messages to open the discussion, including setting a comfortable tone and bringing up relevant topics.",
-        example="Hey, I'd love to check in with you sometime soon. Are you free later to talk?"
+        example="Hey, are you free later to talk?"
     ),
     "Power": Strategy(
         name="Power",
         category="Competitive",
         definition="Using threats or coercion to push the conversation toward a particular outcome.",
-        example="If you don't talk to me about this, I'm going to stop talking to you altogether."
+        example="I'm breaking up with you if you keep hanging out with him."
     ),
     "Rights": Strategy(
         name="Rights",
