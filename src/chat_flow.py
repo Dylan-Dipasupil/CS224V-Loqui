@@ -22,18 +22,36 @@ class ChatFlow:
         Configure the chatbot agent with type, description, and scenario.
         """
         print("Running setup_agent...")
-        while True:
-            agent_type = input("Choose agent type (Cooperative, Neutral, Competitive): ").strip()
-            try:
-                self.chat_client.set_agent_type(agent_type)
-                break
-            except Exception as e:
-                print(e)
-
+        
+        # Set agent description first
         agent_desc = input("Describe the agent (e.g., 'friend', 'romantic partner'): ").strip()
         self.chat_client.set_agent_desc(agent_desc)
-        
-        relationship_context = input("Provide more context about your relationship (e.g., 'We've been friends for 5 years but recently had a disagreement'): ").strip()
+
+        print("\nChoose the type of agent from the following options:")
+        print("1. Cooperative: Focused on resolving conflicts with mutual understanding and agreement.")
+        print("   Example: 'I understand why you feel this way. Let’s find a solution together.'")
+        print("2. Neutral: Focused on facts or maintaining balance in the conversation.")
+        print("   Example: 'I didn't realize you felt this way - we haven't talked about it for a while.'")
+        print("3. Competitive: Focused on asserting dominance or prioritizing personal goals.")
+        print("   Example: 'I won’t let this go unless you agree.'")
+
+        # Use numbers for input
+        while True:
+            agent_type_input = input("Enter the number corresponding to the agent type: ").strip()
+            agent_types = {"1": "Cooperative", "2": "Neutral", "3": "Competitive"}
+            if agent_type_input in agent_types:
+                try:
+                    self.chat_client.set_agent_type(agent_types[agent_type_input])
+                    break
+                except Exception as e:
+                    print(e)
+            else:
+                print("Invalid input. Please enter 1, 2, or 3.")
+
+        # Relationship context and situation remain unchanged
+        relationship_context = input(
+            "Provide more context about your relationship (e.g., 'We've been friends for 5 years but recently had a disagreement'): "
+        ).strip()
         self.chat_client.set_relationship_context(relationship_context)
 
         situation = input("Describe the problem you want to address (e.g., 'Setting boundaries about personal space'): ").strip()
@@ -41,53 +59,56 @@ class ChatFlow:
 
 
     def run_conversation(self):
-        """
-        Simulate a conversation between the user and the chatbot.
-        """
-        print("\n--- Start Conversation ---")
-        while True:
-            user_input = input("You: ")
-            
-            # QUIT
-            if user_input.lower() == "!quit":
-                if not self.just_gave_feedback:
+            """
+            Simulate a conversation between the user and the chatbot.
+            """
+            print("\n--- Start Conversation ---")
+            print("Available commands:")
+            print("  !quit     - Exit the conversation.")
+            print("  !feedback - Enter feedback mode & receive feedback.")
+            print("  !resume   - Resume the conversation from feedback mode.")
+
+            while True:
+                user_input = input("You: ").strip()
+                command = user_input.lower()
+                
+                if command == "!quit":
+                    if not self.just_gave_feedback:
+                        self.generate_feedback()
+                        print()
+                    print("Exiting conversation...")
+                    if self.save_log:
+                        self.save_chat_log()
+                    break
+                elif command == "!feedback":
                     self.generate_feedback()
-                    print()
-                print("Exiting conversation...")
-                if self.save_log:
-                    self.save_chat_log()
-                break
-            # FEEDBACK
-            elif user_input.lower() == "!feedback":
-                self.generate_feedback()
-                self.just_gave_feedback = True
-                self.feedback_mode = True
-                continue
-            # RESUME
-            elif user_input.lower() == "!resume":
-                if self.feedback_mode:
-                    print("Resuming conversation...")
-                    self.feedback_mode = False
+                    self.just_gave_feedback = True
+                    self.feedback_mode = True
+                    continue
+                elif command == "!resume":
+                    if self.feedback_mode:
+                        print("Resuming conversation...")
+                        self.feedback_mode = False
+                    else:
+                        print("You are already in conversation mode.")
+                    continue
+
+                if not self.feedback_mode and user_input:
+                    response = self.chat_client.get_response(user_input, self.chat_log)
+                    print(f"Bot: {response}")
+                    self.just_gave_feedback = False
+
+                    # Log the conversation turn
+                    self.chat_log.append(f"You: {user_input}")
+                    self.chat_log.append(f"Bot: {response}")
+
+                    strategy = self.chat_client.classify_strategy(user_input)
+                    if strategy in strategies:
+                        category = strategies[strategy].category
+                        self.user_strategy_usage[category] += 1
+
                 else:
-                    print("You are already in conversation mode.")
-                continue
-
-            if not self.feedback_mode and user_input:
-                response = self.chat_client.get_response(user_input, self.chat_log)
-                print(f"Bot: {response}")
-                self.just_gave_feedback = False
-
-                # Log the conversation turn
-                self.chat_log.append(f"You: {user_input}")
-                self.chat_log.append(f"Bot: {response}")
-
-                strategy = self.chat_client.classify_strategy(user_input)
-                if strategy in strategies:
-                    category = strategies[strategy].category  # Find the main category
-                    self.user_strategy_usage[category] += 1
-
-            else:
-                print("Please enter a valid message.")
+                    print("Please enter a valid message.")
             
             
     def generate_feedback(self):
