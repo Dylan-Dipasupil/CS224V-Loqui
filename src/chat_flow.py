@@ -37,7 +37,7 @@ class ChatFlow:
 
         # Use numbers for input
         while True:
-            agent_type_input = input("Enter the number corresponding to the agent type: ").strip()
+            agent_type_input = input("Enter the number corresponding to the agent type (1, 2, or 3): ").strip()
             agent_types = {"1": "Cooperative", "2": "Neutral", "3": "Competitive"}
             if agent_type_input in agent_types:
                 try:
@@ -48,9 +48,10 @@ class ChatFlow:
             else:
                 print("Invalid input. Please enter 1, 2, or 3.")
 
+        print()
         # Relationship context and situation remain unchanged
         relationship_context = input(
-            "Provide more context about your relationship (e.g., 'We've been friends for 5 years but recently had a disagreement'): "
+            "Describe them a bit more -- e.g. how long have you known them? how do they usually act? (e.g. 'We've been friends for 5 years but recently had a disagreement. He always shuts down when I try to talk to him'): "
         ).strip()
         self.chat_client.set_relationship_context(relationship_context)
 
