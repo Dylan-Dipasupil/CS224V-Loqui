@@ -19,7 +19,7 @@ class Strategy:
         self.example = example
         
 
-# Define strategies TODO make more relationship-oriented
+# Define strategies
 strategies = {
     "Interests": Strategy(
         name="Interests",
@@ -31,7 +31,7 @@ strategies = {
         name="Positive Expectations",
         category="Cooperative",
         definition="Communicating positive expectations through the recognition of shared values and goals within the relationship.",
-        example="I know you're always supportive of me, and I want to make sure I'm there for you in the same way."
+        example="I value our friendship and want to ensure we keep supporting each other through this."
     ),
     "Proposal": Strategy(
         name="Proposal",
@@ -43,19 +43,19 @@ strategies = {
         name="Concession",
         category="Cooperative",
         definition="Adjusting an initial view or approach (in response to a suggestion) to help resolve the issue in the relationship.",
-        example="I get it now - let's try checking in weekly if that works better for you."
+        example="I understand your perspective now, so, I'm okay with trying your approach first, and we can reassess if needed."
     ),
     "Facts": Strategy(
         name="Facts",
         category="Neutral",
         definition="Sharing information on the context or history of the issue, including requests for clarification or summaries.",
-        example="We haven't talked about it for a while, so I did not know how you were feeling."
+        example="We haven't talked about it for a while, so I did not know how you were feeling. What's your current perspective?"
     ),
     "Procedural": Strategy(
         name="Procedural",
         category="Neutral",
-        definition="Introductory messages to open the discussion, including setting a comfortable tone and bringing up relevant topics.",
-        example="Hey, are you free later to talk?"
+        definition="Messages to open the discussion, including setting a comfortable tone and bringing up relevant topics.",
+        example="Hey, are you free to talk?"
     ),
     "Power": Strategy(
         name="Power",
@@ -67,7 +67,7 @@ strategies = {
         name="Rights",
         category="Competitive",
         definition="Appealing to unchangeable principles or standards to direct the resolution.",
-        example="I can't compromise on this because it goes against what I believe in."
+        example="I have a right to feel respected, so I need you to stop talking to me like that."
     )
 }
 
@@ -81,6 +81,24 @@ class ChatClient:
         self.situation = ""  # eg "Setting a boundary on spending too much time together"
         self.relationship_context = ""  # user input about relationship
         self.agent_context = "" # concise string fed to agent to give it context for who it is role-playing as
+        self.base_agent_desc = ""
+        self.res_score = 1  # how resolved the convo is, 1=unresolved, 5=resolved, starts as 1 bc convo is supposed to be about conflict resolution, so starts w conflict
+
+        self.res_score_defs = {
+            1: "Conflict is escalating; communication is unproductive and contentious. Both parties are in full disagreement",
+            2: "Conflict is still contentious; some effort toward resolution or understanding is evident, but tension still exists.",
+            3: "Conflict is not escalating but people are also not actively resolving the issue.",
+            4: "Conflict is de-escalating; cooperative strategies are being employed, people are working with each other",
+            5: "Conversation is de-escalated; communication is productive, cooperative, and resolution-focused. People are happy."
+        }
+
+        self.res_score_strats = {
+            1: ["Power", "Rights"],
+            2: ["Rights", "Facts", "Procedural"],
+            3: ["Facts", "Procedural"],
+            4: ["Interests", "Positive Expectations", "Proposal", "Concession"],
+            5: ["Interests", "Positive Expectations", "Proposal", "Concession"]
+        }
 
 
     def basic_prompt(self, prompt, stream=True):
@@ -183,10 +201,27 @@ class ChatClient:
         """
         self.relationship_context = context
 
+    def get_res_score(self):
+        return self.res_score
+    
+    def set_base_agent_desc(self):
+        """
+        Creates a role description that the bot should adhere to
+        """
+        desc_summary_prompt = f"You are describing Person B, who is talking to person A in a conversation. From Person A's perspective, the conflict they have with you is \"{self.situation}\" (mentions of \"she\" or \"he\" likely refer to person B). B is person A's {self.agent_desc}. Person A describes B as: \"{self.relationship_context}\". Based on this, describe Person B in the context of the conversation. Include details about how B would talk, their demeanor, their values, and their goals. Write the description in 2nd person, using 2-3 sentences." 
+
+        # calls llm and sets base_agent_desc var as response
+        self.base_agent_desc = self.basic_prompt(desc_summary_prompt, stream=False) 
+
     def set_agent_context(self, strategy):
-        # build agent context
+        """
+        Sets the relationship context variable
+
+        :param strategy: str, the chosen strategy that the bot should use
+        """
+        # build agent context using base agent description + info about current strategy that they should be using
         self.agent_context = (
-            f"You are the user's {self.agent_desc}. You are a {self.agent_type} person in a conversation about a conflict that the user describes as \"{self.situation}\". The user describes you as: \"{self.relationship_context}\". Formulate a response using the {strategy} strategy. This strategy is defined as \"{strategies[strategy].definition}\" An example of a response using this strategy is \"{strategies[strategy].example}\" Respond in the first person and keep the response short and sweet as if over text message."
+            f"You are talking to someone in a conversation. You are their {self.agent_desc}. {self.base_agent_desc} Formulate a response using the {strategy} strategy. This strategy is defined as \"{strategies[strategy].definition}\" An example of a response using this strategy is \"{strategies[strategy].example}\" Respond to the other person in the first person and keep the response short and sweet as if over text message."
         )
 
     def format_messages(self, chat_log, user_utt):
@@ -196,8 +231,8 @@ class ChatClient:
         :param chat_log: list, the current chat log from chat_flow.py
         """
         # Initialize a list to store messages in the desired format
-        formatted_messages = [{"role": "system", "content": self.agent_context}]
-
+        formatted_messages = [{"role": "system", "content": self.agent_context}]        
+        
         # Process each line in the chat log
         for line in chat_log:
             line = line.strip()  # Remove any extra whitespace
@@ -212,10 +247,53 @@ class ChatClient:
 
         formatted_messages.append({"role": "user", "content": user_utt})
 
-        # Convert the list to a JSON-formatted string
-        #conversation = json.dumps(formatted_messages, indent=6)
-
         return formatted_messages
+    
+    def score_resolution(self, formatted_chat_log):
+        """
+        Scores the current conversation on a scale of 1-5 from unresolved to resolved
+        
+        :param formatted_chat_log: list of dicts, the current chat log from chat_flow.py, formatted through format_messages()
+        """
+        # replace original system role to make bot return a resolution score of the current conversation instead
+        messages = formatted_chat_log[1:]
+        system_role = f"On a scale of 1-5, asssess how resolved the conflict is in this conversation. Choose the number that best describes the current state of the converation: {self.res_score_defs} \n\n Only output the number 1, 2, 3, 4, or 5. Do not output anything else."
+        # append system message at the end for best role adherance (https://community.openai.com/t/the-system-role-how-it-influences-the-chat-behavior/87353)
+        messages.append({"role": "system", "content": system_role})
+
+        # call model to assses how resolved the conversation is
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=messages,
+            stream=False,
+        )
+
+        # if llm response was successful, update resolution score, otherwise it stays the same as past turn
+        if hasattr(response, 'choices') and response.choices:
+            stripped_resp = response.choices[0].message.content.strip('"')
+            # find first digit in response, in case llm decides to not listen
+            for char in stripped_resp:
+                if char.isdigit():
+                    self.res_score = int(char)
+
+        print(f"Current resolution score: {self.res_score}") # TODO delete
+
+    def choose_strategy(self):
+        """
+        Chooses a strategy based on the current resolution score and the agent type
+        """
+        if self.agent_type == "Competitive":
+            # make agent try to push score down, clip at min of 1
+            rscore = self.res_score - 1 if self.res_score > 1 else 1
+        elif self.agent_type == "Cooperative":
+            # make agent try to push score up, clip at max of 5
+            rscore = self.res_score + 1 if self.res_score < 5 else 5
+        else: # for Neutral agent
+            # agent matches current score
+            rscore = self.res_score  
+        
+        return random.choice(self.res_score_strats[rscore])
+        
 
     def get_response(self, user_utt, chat_log, stream=False):
         """
@@ -225,16 +303,21 @@ class ChatClient:
         :param chat_log: list, all utterances thus far (not including most recent user_utt)
         """
         try:
-            # choose a random strategy based on agent type
-            strategy = random.choice(categories[self.agent_type])
-
-            # instruct agent on who they are are how they should respond
-            self.set_agent_context(strategy)
-
             # include chat log in model call if there is a chat log
             if chat_log:
                 # Construct the conversation context from the history
                 messages = self.format_messages(chat_log, user_utt)
+
+                # score the current resolution of the conversation, stored as self.res_score - note: slows program more and more as convo goes on
+                self.score_resolution(messages)
+
+                # choose a random strategy based on agent type and res_score
+                strategy = self.choose_strategy()
+                print(f"Bot's strategy: {strategy}") # TODO delete
+
+                # tell the agent who they are and which strategy they should be using
+                self.set_agent_context(strategy)
+                print("agent context:", self.agent_context)
 
                 # call model to respond, with context for who the agent is and the conversation thus far
                 response = self.client.chat.completions.create(
@@ -245,6 +328,13 @@ class ChatClient:
 
             # if no chat log yet (eg first utterance), don't include in model call
             else:
+                # choose a random strategy based on agent type and res_score
+                strategy = self.choose_strategy()
+                print(f"Bot's strategy: {strategy}") # TODO delete
+
+                # tell the agent who they are and which strategy they should be using
+                self.set_agent_context(strategy)
+
                 # call model to respond, with context for who the agent is and the most recent user utterance
                 response = self.client.chat.completions.create(
                     model=self.model,

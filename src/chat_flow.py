@@ -29,11 +29,11 @@ class ChatFlow:
 
         print("\nChoose the type of agent from the following options:")
         print("1. Cooperative: Focused on resolving conflicts with mutual understanding and agreement.")
-        print("   Example: 'I understand why you feel this way. Let’s find a solution together.'")
+        print("   Example: 'I understand why you feel this way. Let's find a solution together.'")
         print("2. Neutral: Focused on facts or maintaining balance in the conversation.")
         print("   Example: 'I didn't realize you felt this way - we haven't talked about it for a while.'")
         print("3. Competitive: Focused on asserting dominance or prioritizing personal goals.")
-        print("   Example: 'I won’t let this go unless you agree.'")
+        print("   Example: 'I won't let this go unless you agree.'")
 
         # Use numbers for input
         while True:
@@ -51,12 +51,14 @@ class ChatFlow:
         print()
         # Relationship context and situation remain unchanged
         relationship_context = input(
-            "Describe them a bit more -- e.g. how long have you known them? how do they usually act? (e.g. 'We've been friends for 5 years but recently had a disagreement. He always shuts down when I try to talk to him'): "
+            "Describe them a bit more -- e.g. how long have you known them? how do they usually act? (e.g. '14 years old, We've been friends for 5 years but recently had a disagreement. He always shuts down when I try to talk to him'): "
         ).strip()
         self.chat_client.set_relationship_context(relationship_context)
 
         situation = input("Describe the problem you want to address (e.g., 'Setting boundaries about personal space'): ").strip()
         self.chat_client.set_situation(situation)
+
+        self.chat_client.set_base_agent_desc()
 
 
     def run_conversation(self):
@@ -68,6 +70,8 @@ class ChatFlow:
             print("  !quit     - Exit the conversation.")
             print("  !feedback - Enter feedback mode & receive feedback.")
             print("  !resume   - Resume the conversation from feedback mode.")
+            print("  !score    - See the current resolution score -- how resolved the conversation is on a scale of 1-5, where 1=unresolved, 5=resolved. Your goal is to reach 5")
+            print()
 
             while True:
                 user_input = input("You: ").strip()
@@ -92,6 +96,10 @@ class ChatFlow:
                         self.feedback_mode = False
                     else:
                         print("You are already in conversation mode.")
+                    continue
+                elif command == "!score":
+                    res_score = self.chat_client.get_res_score()
+                    print(f"Current resolution score: {res_score}")
                     continue
 
                 if not self.feedback_mode and user_input:
