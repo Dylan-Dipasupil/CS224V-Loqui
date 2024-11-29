@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loqui</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+            background-color: #e9ecef; 
+        }
+        h1 {
+            text-align: center;
+        }
+        #setup-container, #chat-container {
+            margin: 20px auto;
+            max-width: 600px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        #setup-container input, #setup-container select, #setup-container textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        #setup-container textarea {
+            height: 80px; 
+            resize: vertical; 
+        }
+        #setup-container button {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #setup-container button:hover {
+            background-color: #0056b3;
+        }
+        #chat-container {
+            display: none; 
+            padding: 20px;
+            background-color: #f2f2f2;
+            border-radius: 8px;
+        }
+        #chat-box {
+            width: 100%;
+            height: 400px;
+            border: 1px solid #ccc;
+            border-radius: 4px; 
+            overflow-y: auto; 
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #ffffff;
+            box-sizing: border-box;
+        }
+        .user-message, .bot-message {
+            margin-bottom: 15px;
+        }
+        .user-message {
+            color: blue;
+        }
+        .bot-message {
+            color: green;
+        }
+        #message {
+            width: calc(100% - 90px);
+            padding: 10px;
+            font-size: 16px;
+            margin-right: 10px;
+            box-sizing: border-box;
+            height: 50px; 
+        }
+        #send-btn {
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        #send-btn:hover {
+            background-color: #0056b3;
+        }
+        #feedback-btn {
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            margin-top: 10px; /* Add spacing below chat input */
+        }
+        #feedback-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Loqui</h1>
+
+    <!-- Setup Container -->
+    <div id="setup-container">
+        <h3>Setup Chatbot</h3>
+        <label for="agent-desc">Agent Description:</label>
+        <input type="text" id="agent-desc" placeholder="e.g., friend, romantic partner">
+        
+        <label for="agent-type">Agent Type:</label>
+        <select id="agent-type">
+            <option value="Cooperative">Cooperative</option>
+            <option value="Neutral">Neutral</option>
+            <option value="Competitive">Competitive</option>
+        </select>
+        
+        <label for="relationship-context">Relationship Context:</label>
+        <textarea id="relationship-context" placeholder="e.g., We've been friends for 5 years"></textarea>
+        
+        <label for="situation">Situation:</label>
+        <textarea id="situation" placeholder="e.g., Setting boundaries"></textarea>
+        
+        <button id="start-chat-btn">Start Chat</button>
+    </div>
+
+    <!-- Chat Container -->
+    <div id="chat-container">
+        <div id="chat-box"></div>
+        <div>
+            <input type="text" id="message" placeholder="Type your message here...">
+            <button id="send-btn">Send</button>
+        </div>
+        <button id="feedback-btn">Get Feedback</button>
+    </div>
+
+    <script>
+        const setupContainer = document.getElementById("setup-container");
+        const chatContainer = document.getElementById("chat-container");
+        const chatBox = document.getElementById("chat-box");
+        const messageInput = document.getElementById("message");
+        const startChatBtn = document.getElementById("start-chat-btn");
+        const sendBtn = document.getElementById("send-btn");
+        const feedbackBtn = document.getElementById("feedback-btn");
+
+        // Ensure the chat container is hidden on page load
+        document.addEventListener("DOMContentLoaded", () => {
+            setupContainer.style.display = "block";
+            chatContainer.style.display = "none"; // Ensure chat container is hidden
+        });
+
+        // Append messages to the chat box
+        function appendMessage(role, message) {
+            const messageElem = document.createElement("div");
+            messageElem.className = role === "user" ? "user-message" : "bot-message";
+            messageElem.textContent = `${role === "user" ? "You" : "Bot"}: ${message}`;
+            chatBox.appendChild(messageElem);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // Start chat
+        startChatBtn.addEventListener("click", async () => {
+            const agentDesc = document.getElementById("agent-desc").value.trim();
+            const agentType = document.getElementById("agent-type").value.trim();
+            const relationshipContext = document.getElementById("relationship-context").value.trim();
+            const situation = document.getElementById("situation").value.trim();
+
+            if (!agentDesc || !relationshipContext || !situation) {
+                alert("Please fill in all fields.");
+                return;
+            }
+
+            try {
+                const response = await fetch("/setup", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        agent_desc: agentDesc,
+                        agent_type: agentType,
+                        relationship_context: relationshipContext,
+                        situation,
+                    }),
+                });
+
+                const data = await response.json();
+                if (data.message) {
+                    setupContainer.style.display = "none"; // Hide setup form
+                    chatContainer.style.display = "block"; // Show chat box
+                    appendMessage("bot", "Chatbot setup complete! Start chatting below.");
+                } else {
+                    appendMessage("bot", `Error: ${data.error}`);
+                }
+            } catch (error) {
+                appendMessage("bot", "Error connecting to server.");
+            }
+        });
+
+        // Handle sending user messages
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            appendMessage("user", message);
+            messageInput.value = "";
+
+            try {
+                const response = await fetch("/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message }),
+                });
+
+                const data = await response.json();
+                if (data.bot) {
+                    appendMessage("bot", data.bot);
+                } else if (data.error) {
+                    appendMessage("bot", `Error: ${data.error}`);
+                }
+            } catch (error) {
+                appendMessage("bot", "Error connecting to server.");
+            }
+        }
+
+        sendBtn.addEventListener("click", sendMessage);
+
+        // Allow sending messages with Enter key
+        messageInput.addEventListener("keydown", (event) => {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Handle fetching feedback
+        feedbackBtn.addEventListener("click", async () => {
+            try {
+                const response = await fetch("/feedback");
+                const data = await response.json();
+                if (data.feedback) {
+                    appendMessage("bot", `Feedback: ${data.feedback}`);
+                } else if (data.error) {
+                    appendMessage("bot", `Error: ${data.error}`);
+                }
+            } catch (error) {
+                appendMessage("bot", "Error fetching feedback.");
+            }
+        });
+    </script>
+</body>
+</html>
