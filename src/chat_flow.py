@@ -24,7 +24,7 @@ class ChatFlow:
         print("Running setup_agent...")
         
         # Set agent description first
-        agent_desc = input("Describe the agent (e.g., 'friend', 'romantic partner'): ").strip()
+        agent_desc = input("The other person is your...? (e.g., friend, romantic partner, brother): ").strip()
         self.chat_client.set_agent_desc(agent_desc)
 
         print("\nChoose the type of agent from the following options:")
@@ -37,7 +37,7 @@ class ChatFlow:
 
         # Use numbers for input
         while True:
-            agent_type_input = input("Enter the number corresponding to the agent type (1, 2, or 3): ").strip()
+            agent_type_input = input("Enter the number corresponding to the kind of person you want the bot to be (1, 2, or 3): ").strip()
             agent_types = {"1": "Cooperative", "2": "Neutral", "3": "Competitive"}
             if agent_type_input in agent_types:
                 try:
