@@ -73,14 +73,16 @@ strategies = {
 
 
 class ChatClient:
-    def __init__(self, model="meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo"):
+    # 	old: meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo
+    def __init__(self, model="meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo"):
         self.client = Together()
         self.model = model
         self.agent_type = ""  # One of: Cooperative, Neutral, Competitive
         self.agent_desc = "person"  # eg "romantic partner of 3 years" or "friend who wants to be more"
         self.situation = ""  # eg "Setting a boundary on spending too much time together"
-        self.relationship_context = ""  # user input about relationship
-        self.agent_context = "" # concise string fed to agent to give it context for who it is role-playing as
+        self.relationship_context = ""  # user description of person (eg 14 years old)
+
+        self.agent_context = "" # concise string fed to agent to give it context for who it is role-playing as 
         self.base_agent_desc = ""
         self.res_score = 1  # how resolved the convo is, 1=unresolved, 5=resolved, starts as 1 bc convo is supposed to be about conflict resolution, so starts w conflict
 
@@ -187,7 +189,7 @@ class ChatClient:
     
     def set_situation(self, situation):
         """
-        Sets the agent_desc variable
+        Sets the situation variable
 
         :param situation: str, The situation description, eg "Setting a boundary about spending too much time together"
         """
@@ -208,10 +210,11 @@ class ChatClient:
         """
         Creates a role description that the bot should adhere to
         """
-        desc_summary_prompt = f"You are describing Person B, who is talking to person A in a conversation. From Person A's perspective, the conflict they have with you is \"{self.situation}\" (mentions of \"she\" or \"he\" likely refer to person B). B is person A's {self.agent_desc}. Person A describes B as: \"{self.relationship_context}\". Based on this, describe Person B in the context of the conversation. Include details about how B would talk, their demeanor, their values, and their goals. Write the description in 2nd person, using 2-3 sentences." 
+        desc_summary_prompt = f"You are describing me. From your perspective, the conflict you have with me is \"{self.situation}\" (mentions of \"she\" or \"he\" likely refer to me). I am a {self.agent_desc} to you. You describe me as: \"{self.relationship_context}\". Based on this, describe me in the context of our conversation. Include details about how I would talk, my demeanor, my values, and my goals. Write the description in 2nd person, using 2 short sentences." 
 
         # calls llm and sets base_agent_desc var as response
-        self.base_agent_desc = self.basic_prompt(desc_summary_prompt, stream=False) 
+        self.base_agent_desc = self.basic_prompt(desc_summary_prompt, stream=False)
+        print(f"agent description: {self.base_agent_desc}") 
 
     def set_agent_context(self, strategy):
         """
@@ -221,7 +224,7 @@ class ChatClient:
         """
         # build agent context using base agent description + info about current strategy that they should be using
         self.agent_context = (
-            f"You are talking to someone in a conversation. You are their {self.agent_desc}. {self.base_agent_desc} Formulate a response using the {strategy} strategy. This strategy is defined as \"{strategies[strategy].definition}\" An example of a response using this strategy is \"{strategies[strategy].example}\" Respond to the other person in the first person and keep the response short and sweet as if over text message."
+            f"Respond like you are my {self.agent_desc}. {self.base_agent_desc} Respond using the {strategy} strategy. This strategy is defined as \"{strategies[strategy].definition}\" An example of a response using this strategy is \"{strategies[strategy].example}\" Respond to the other person in the first person and keep the response short and sweet as if over text message."
         )
 
     def format_messages(self, chat_log, user_utt):
@@ -317,7 +320,7 @@ class ChatClient:
 
                 # tell the agent who they are and which strategy they should be using
                 self.set_agent_context(strategy)
-                print("agent context:", self.agent_context)
+                #print("agent context:", self.agent_context)
 
                 # call model to respond, with context for who the agent is and the conversation thus far
                 response = self.client.chat.completions.create(
