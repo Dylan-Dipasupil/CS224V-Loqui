@@ -214,7 +214,7 @@ class ChatClient:
 
         # calls llm and sets base_agent_desc var as response
         self.base_agent_desc = self.basic_prompt(desc_summary_prompt, stream=False)
-        print(f"agent description: {self.base_agent_desc}") 
+        print(f"agent description: {self.base_agent_desc}")  # TODO delete
 
     def set_agent_context(self, strategy):
         """
