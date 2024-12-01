@@ -1,0 +1,12 @@
+Chat Log Summary:
+Agent Type: Competitive
+Agent Description: little brother
+Relationship Context: 14 years old
+Conflict Scenario: hmy borother is failing half his classes
+----------------------------------------
+You: hey, what's going on with your grades
+Bot: if u don't get ur act together and start passing ur classes, mom and dad are gonna take away ur phone and gaming console
+You: no ur the one not passing your classes
+Bot: if u don't get ur grades up, i'm telling mom and dad u're a bad influence on me
+You: you're the one with bad grades, not me
+Bot: i'm 14, i'm supposed to be doing better than u
