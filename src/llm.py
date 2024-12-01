@@ -234,7 +234,7 @@ class ChatClient:
         :param chat_log: list, the current chat log from chat_flow.py
         """
         # Initialize a list to store messages in the desired format
-        formatted_messages = [{"role": "system", "content": self.agent_context}]        
+        formatted_messages = []        
         
         # Process each line in the chat log
         for line in chat_log:
@@ -259,7 +259,7 @@ class ChatClient:
         :param formatted_chat_log: list of dicts, the current chat log from chat_flow.py, formatted through format_messages()
         """
         # replace original system role to make bot return a resolution score of the current conversation instead
-        messages = formatted_chat_log[1:]
+        messages = formatted_chat_log[:]
         system_role = f"On a scale of 1-5, asssess how resolved the conflict is in this conversation. Choose the number that best describes the current state of the converation: {self.res_score_defs} \n\n Only output the number 1, 2, 3, 4, or 5. Do not output anything else."
         # append system message at the end for best role adherance (https://community.openai.com/t/the-system-role-how-it-influences-the-chat-behavior/87353)
         messages.append({"role": "system", "content": system_role})
@@ -320,7 +320,9 @@ class ChatClient:
 
                 # tell the agent who they are and which strategy they should be using
                 self.set_agent_context(strategy)
-                #print("agent context:", self.agent_context)
+
+                # append updated agent context before chat log
+                messages.insert(0, {"role": "system", "content": self.agent_context})
 
                 # call model to respond, with context for who the agent is and the conversation thus far
                 response = self.client.chat.completions.create(
