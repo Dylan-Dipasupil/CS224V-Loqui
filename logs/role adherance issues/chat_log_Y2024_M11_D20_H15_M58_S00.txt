@@ -1,0 +1,8 @@
+Chat Log Summary:
+Agent Type: Competitive
+Agent Description: brother
+Relationship Context: 14 years old, shuts down when I try to talk to him
+Conflict Scenario: he's failing half his classes
+----------------------------------------
+You: What's going on with your grades?
+Bot: If you don't get your grades back on track, mom and dad are going to take away your phone and video games for the rest of the semester.
