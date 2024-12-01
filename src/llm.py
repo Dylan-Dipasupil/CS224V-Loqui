@@ -214,7 +214,7 @@ class ChatClient:
 
         # calls llm and sets base_agent_desc var as response
         self.base_agent_desc = self.basic_prompt(desc_summary_prompt, stream=False)
-        print(f"agent description: {self.base_agent_desc}")  # TODO delete
+        #print(f"Agent description summary: {self.base_agent_desc}") 
 
     def set_agent_context(self, strategy):
         """
@@ -279,7 +279,7 @@ class ChatClient:
                 if char.isdigit():
                     self.res_score = int(char)
 
-        print(f"Current resolution score: {self.res_score}") # TODO delete
+        #print(f"Current resolution score: {self.res_score}")
 
     def choose_strategy(self):
         """
@@ -316,7 +316,6 @@ class ChatClient:
 
                 # choose a random strategy based on agent type and res_score
                 strategy = self.choose_strategy()
-                print(f"Bot's strategy: {strategy}") # TODO delete
 
                 # tell the agent who they are and which strategy they should be using
                 self.set_agent_context(strategy)
@@ -335,8 +334,7 @@ class ChatClient:
             else:
                 # choose a random strategy based on agent type and res_score
                 strategy = self.choose_strategy()
-                print(f"Bot's strategy: {strategy}") # TODO delete
-
+                
                 # tell the agent who they are and which strategy they should be using
                 self.set_agent_context(strategy)
 
@@ -370,8 +368,6 @@ class ChatClient:
         """
         stats_report_str = "\n".join(stats_report)
 
-        # TODO integrate more specific feedback like offering alternatives to "bad" utterances
-        # TODO shorten prompt? 
         prompt = f"""You are evaluating how well a user is doing in a difficult conversation involving {self.situation}. 
         
         The other person is the user's {self.agent_desc}. The other person is described as: '{self.relationship_context}. 
