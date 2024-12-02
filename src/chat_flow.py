@@ -51,7 +51,7 @@ class ChatFlow:
         print()
         # Relationship context and situation remain unchanged
         relationship_context = input(
-            "Describe them a bit more -- e.g. how long have you known them? how do they usually act? (e.g. '14 years old, We've been friends for 5 years but recently had a disagreement. He always shuts down when I try to talk to him'): "
+            "Describe them a bit more -- e.g. how long have you known them? how do they usually act? (e.g. '14 years old, he always shuts down when I try to talk to him'): "
         ).strip()
         self.chat_client.set_relationship_context(relationship_context)
 
