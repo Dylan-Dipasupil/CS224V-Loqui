@@ -3,7 +3,7 @@ import os
 import argparse
 from datetime import datetime
 
-from llm import ChatClient, strategies, categories
+from src.llm import ChatClient, strategies, categories
 
 LINE = "-"*40
 
