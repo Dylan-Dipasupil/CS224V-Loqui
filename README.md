@@ -42,7 +42,7 @@ Conflicts are inevitable in relationships, but how we handle them can make all t
 To start a conversation simulation, run the following command:
 
 ```bash
-python src/chat_flow.py
+python app.py
 ```
 To save your conversation logs, you can use the --save_log option. This will create a log file in a designated log folder, including a header detailing all the bot settings for that session.
 ```bash
