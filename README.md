@@ -31,6 +31,10 @@ Conflicts are inevitable in relationships, but how we handle them can make all t
     pip install -r requirements.txt
     ```
 
+3. **Add the Together AI API key to your environment variables**:
+```
+   export TOGETHER_API_KEY=a235d8aef8b2bb116dea5adda07245a7d0852a8cd64e3b6d4dcd56b250d4fc01
+```
 ---
 
 ## Running Loqui
