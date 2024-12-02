@@ -113,21 +113,21 @@
     <!-- Setup Container -->
     <div id="setup-container">
         <h3>Setup Chatbot</h3>
-        <label for="agent-desc">Agent Description:</label>
-        <input type="text" id="agent-desc" placeholder="e.g., friend, romantic partner">
+        <label for="agent-desc">The other person is your...?</label>
+        <input type="text" id="agent-desc" placeholder="e.g., friend, romantic partner, brother">
         
         <label for="agent-type">Agent Type:</label>
         <select id="agent-type">
-            <option value="Cooperative">Cooperative</option>
-            <option value="Neutral">Neutral</option>
-            <option value="Competitive">Competitive</option>
+            <option value="Cooperative">Cooperative - focused on resolving conflicts</option>
+            <option value="Neutral">Neutral - focused on maintaining balance</option>
+            <option value="Competitive">Competitive - focused on asserting dominance</option>
         </select>
         
-        <label for="relationship-context">Relationship Context:</label>
-        <textarea id="relationship-context" placeholder="e.g., We've been friends for 5 years"></textarea>
+        <label for="relationship-context">Describe them a bit more -- e.g. how long have you known them? how do they usually act?</label>
+        <textarea id="relationship-context" placeholder="e.g. girlfriend of 3 years, has anxiety"></textarea>
         
         <label for="situation">Situation:</label>
-        <textarea id="situation" placeholder="e.g., Setting boundaries"></textarea>
+        <textarea id="situation" placeholder="e.g., I feel like we spend too much time together. I need more alone time."></textarea>
         
         <button id="start-chat-btn">Start Chat</button>
     </div>
