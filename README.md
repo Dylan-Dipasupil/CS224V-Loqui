@@ -9,11 +9,10 @@ Loqui is an AI-powered chatbot designed to help users navigate and resolve confl
 Conflicts are inevitable in relationships, but how we handle them can make all the difference. Many people struggle with navigating difficult conversations, especially when emotions are involved. Whether it's setting boundaries, apologizing, or expressing needs, practicing these conversations can help ensure relationships thrive. Loqui provides an accessible tool for users to rehearse these interactions, equipping them with the skills needed to maintain and strengthen their bonds.
 
 ## Key Features
-- **Emotion and Tone Simulation**: Mimics different conversational tones (e.g., empathetic, calm, assertive), helping users prepare for various scenarios.
+- **Emotion and Tone Simulation**: Mimics different conversational tones, helping users prepare for various scenarios.
 - **User-Directed Scenarios**: Users can specify the type of conflict they want to practice (e.g., setting boundaries, expressing concerns, apologizing).
 - **Feedback Reports**: Provides detailed feedback on conversational patterns and suggestions for more effective communication.
 - **Agent Types**: Choose from cooperative, neutral, or challenging agents for a more tailored practice experience.
-- **Continuous Improvement**: Regular user testing ensures realistic interaction and useful suggestions.
 
 ---
 
