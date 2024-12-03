@@ -1,7 +1,11 @@
 from flask import Flask, request, jsonify, render_template
 from src.chat_flow import ChatFlow
+from src.llm import strategies
+import logging
 
 app = Flask(__name__)
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 chat_flow = None
 
@@ -30,6 +34,9 @@ def setup_chat():
     if not all([agent_desc, agent_type, relationship_context, situation]):
         return jsonify({"error": "All fields are required!"}), 400
 
+    if agent_type not in ["Cooperative", "Neutral", "Competitive"]:
+        return jsonify({"error": "Invalid agent type!"}), 400
+
     # Reset the ChatFlow instance
     chat_flow = ChatFlow(save_log=False)
     chat_flow.chat_client.set_agent_desc(agent_desc)
@@ -37,6 +44,7 @@ def setup_chat():
     chat_flow.chat_client.set_relationship_context(relationship_context)
     chat_flow.chat_client.set_situation(situation)
 
+    logger.info("Chatbot setup complete with parameters.")
     return jsonify({"message": "Chatbot setup complete!"})
 
 @app.route("/chat", methods=["POST"])
@@ -54,12 +62,25 @@ def chat():
     if not user_message:
         return jsonify({"error": "Message cannot be empty!"}), 400
 
-    # Generate a response from the chatbot
-    bot_response = chat_flow.chat_client.get_response(user_message, chat_flow.chat_log)
-    chat_flow.chat_log.append(f"You: {user_message}")
-    chat_flow.chat_log.append(f"Bot: {bot_response}")
+    try:
+        # Classify the user's input into a strategy
+        strategy = chat_flow.chat_client.classify_strategy(user_message)
 
-    return jsonify({"bot": bot_response})
+        if strategy in strategies:
+            category = strategies[strategy].category
+            chat_flow.user_strategy_usage[category] += 1  # Update strategy usage stats
+
+        # Get the bot's response
+        bot_response = chat_flow.chat_client.get_response(user_message, chat_flow.chat_log)
+
+        # Update the chat log
+        chat_flow.chat_log.append(f"You: {user_message}")
+        chat_flow.chat_log.append(f"Bot: {bot_response}")
+
+        return jsonify({"bot": bot_response})
+    except Exception as e:
+        return jsonify({"error": f"An error occurred: {str(e)}"}), 500
+
 
 @app.route("/feedback", methods=["GET"])
 def feedback():
@@ -70,10 +91,33 @@ def feedback():
     if not chat_flow:
         return jsonify({"error": "Chatbot is not set up yet!"}), 400
 
-    # Generate feedback
-    chat_flow.generate_feedback()
-    feedback_messages = [log for log in chat_flow.chat_log if log.startswith("Feedback:")]
-    return jsonify({"feedback": feedback_messages[-1] if feedback_messages else "No feedback yet."})
+    try:
+        # Generate the strategy usage statistics
+        stats_report = []
+        total_messages = sum(chat_flow.user_strategy_usage.values())
+
+        for category, count in chat_flow.user_strategy_usage.items():
+            if count > 0:
+                percentage = (count / total_messages) * 100
+                cat_stats = f"{category}: {count} times ({percentage:.2f}%)"
+            else:
+                cat_stats = f"{category}: Not used"
+            stats_report.append(cat_stats)
+
+        # Generate feedback using the LLM
+        feedback_text = chat_flow.chat_client.get_feedback(stats_report)
+
+        # Format the feedback for display
+        final_feedback = (
+            "\n".join(stats_report) +
+            "\n\nSummary:\n" +
+            feedback_text
+        )
+
+        return jsonify({"feedback": final_feedback})
+    except Exception as e:
+        return jsonify({"error": f"Feedback generation failed: {str(e)}"}), 500
+
 
 if __name__ == "__main__":
     app.run(debug=True)
