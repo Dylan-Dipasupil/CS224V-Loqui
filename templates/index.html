@@ -26,74 +26,22 @@
             color: #333;
         }
 
-        #setup-container {
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 5px;
+        #setup-container, #chat-container {
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         input, select, textarea {
             width: 100%;
-            padding: 8px;
+            padding: 10px;
+            margin: 8px 0;
             font-size: 14px;
             border: 1px solid #ccc;
             border-radius: 4px;
-        }
-
-        #chat-container {
-            display: none;
-        }
-
-        #chat-box {
-            height: 300px;
-            overflow-y: auto;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            padding: 10px;
-            background-color: #f9f9f9;
-            margin-bottom: 10px;
-        }
-
-        .user-message {
-            text-align: right;
-            color: #007bff;
-            margin-bottom: 10px;
-        }
-
-        .bot-message {
-            text-align: left;
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .bot-feedback {
-            text-align: left;
-            color: #4CAF50;
-            font-weight: bold;
-            white-space: pre-line; /* Preserve line breaks */
-            margin-top: 20px; /* Add spacing from the chat box */
-            padding: 10px;
-            background-color: #f9f9f9;
-            border-left: 4px solid #4CAF50; /* Highlight feedback section */
-            border-radius: 4px; /* Rounded corners */
-        }
-
-        .button-group {
-            display: flex;
-            justify-content: flex-end;
-        }
-
-        textarea {
-            flex: 1;
-            margin-right: 10px; /* Add spacing between textarea and buttons */
+            box-sizing: border-box;
         }
 
         button {
@@ -116,33 +64,53 @@
             cursor: not-allowed;
         }
 
-        #send-btn {
-            margin-left: 10px; /* Move the Send button to the right */
+        #chat-box {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            background-color: #ffffff;
+            margin-bottom: 10px;
+        }
+
+        .user-message {
+            text-align: right;
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+
+        .bot-message {
+            text-align: left;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .bot-feedback {
+            text-align: left;
+            color: #4CAF50;
+            font-weight: bold;
+            white-space: pre-line;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-left: 4px solid #4CAF50;
+            border-radius: 4px;
+        }
+
+        #message-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px; /* Space between input and buttons */
+        }
+
+        #message {
+            flex: 1;
+            margin-right: 10px;
         }
 
         #feedback-btn {
-            display: block; /* Ensure proper layout */
-            margin-top: 20px; /* Add spacing from the chat box */
-        }
-
-        #start-chat-btn {
-            padding: 10px 15px;
-            font-size: 14px;
-            color: #fff;
-            background-color: #007bff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            text-align: center;
-        }
-
-        #start-chat-btn:hover {
-            background-color: #0056b3;
-        }
-
-        #start-chat-btn:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
+            margin-top: 10px; /* Add space between buttons */
         }
     </style>
 </head>
@@ -150,34 +118,36 @@
     <div class="container">
         <h1>Loqui</h1>
 
-    <!-- Setup Container -->
-    <div id="setup-container">
-        <h3>Setup Chatbot</h3>
-        <label for="agent-desc">The other person is your...?</label>
-        <input type="text" id="agent-desc" placeholder="e.g., friend, romantic partner, brother">
-        
-        <label for="agent-type">Agent Type:</label>
-        <select id="agent-type">
-            <option value="Cooperative">Cooperative - focused on resolving conflicts</option>
-            <option value="Neutral">Neutral - focused on maintaining balance</option>
-            <option value="Competitive">Competitive - focused on asserting dominance</option>
-        </select>
-        
-        <label for="relationship-context">Describe them a bit more -- e.g. how long have you known them? how do they usually act?</label>
-        <textarea id="relationship-context" placeholder="e.g. girlfriend of 3 years, has anxiety"></textarea>
-        
-        <label for="situation">Situation:</label>
-        <textarea id="situation" placeholder="e.g., I feel like we spend too much time together. I need more alone time."></textarea>
-        
-        <button id="start-chat-btn">Start Chat</button>
-    </div>
+        <!-- Setup Container -->
+        <div id="setup-container">
+            <h3>Setup Chatbot</h3>
+            <label for="agent-desc">The other person is your...?</label>
+            <input type="text" id="agent-desc" placeholder="e.g., friend, romantic partner, brother">
 
-    <!-- Chat Container -->
-    <div id="chat-container">
-        <div id="chat-box"></div>
-        <div>
-            <input type="text" id="message" placeholder="Type your message here...">
-            <button id="send-btn">Send</button>
+            <label for="agent-type">Agent Type:</label>
+            <select id="agent-type">
+                <option value="Cooperative">Cooperative - focused on resolving conflicts</option>
+                <option value="Neutral">Neutral - focused on maintaining balance</option>
+                <option value="Competitive">Competitive - focused on asserting dominance</option>
+            </select>
+
+            <label for="relationship-context">Describe them a bit more:</label>
+            <textarea id="relationship-context" placeholder="e.g., girlfriend of 3 years, has anxiety"></textarea>
+
+            <label for="situation">Situation:</label>
+            <textarea id="situation" placeholder="e.g., I feel like we spend too much time together. I need more alone time."></textarea>
+
+            <button id="start-chat-btn">Start Chat</button>
+        </div>
+
+        <!-- Chat Container -->
+        <div id="chat-container" style="display: none;">
+            <div id="chat-box"></div>
+            <div id="message-container">
+                <input type="text" id="message" placeholder="Type your message here...">
+                <button id="send-btn">Send</button>
+            </div>
+            <button id="feedback-btn">Get Feedback</button>
         </div>
     </div>
 
@@ -185,7 +155,7 @@
         const setupContainer = document.getElementById("setup-container");
         const chatContainer = document.getElementById("chat-container");
         const chatBox = document.getElementById("chat-box");
-        const messageInput = document.getElementById("message-input");
+        const messageInput = document.getElementById("message");
         const sendBtn = document.getElementById("send-btn");
         const startChatBtn = document.getElementById("start-chat-btn");
         const feedbackBtn = document.getElementById("feedback-btn");
@@ -194,15 +164,12 @@
 
         document.addEventListener("DOMContentLoaded", () => {
             setupContainer.style.display = "block";
-            chatContainer.style.display = "none";
         });
 
         function appendMessage(role, message, isFeedback = false) {
             const messageElem = document.createElement("div");
             messageElem.className = role === "user" ? "user-message" : isFeedback ? "bot-feedback" : "bot-message";
-            if (isFeedback) {
-                messageElem.style.whiteSpace = "pre-line";
-            }
+            if (isFeedback) messageElem.style.whiteSpace = "pre-line";
             messageElem.textContent = message;
             chatBox.appendChild(messageElem);
             chatBox.scrollTop = chatBox.scrollHeight;
@@ -223,12 +190,7 @@
                 const response = await fetch("/setup", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        agent_desc: agentDesc,
-                        agent_type: agentType,
-                        relationship_context: relationshipContext,
-                        situation,
-                    }),
+                    body: JSON.stringify({ agent_desc: agentDesc, agent_type: agentType, relationship_context: relationshipContext, situation }),
                 });
 
                 const data = await response.json();
