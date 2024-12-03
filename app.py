@@ -43,6 +43,7 @@ def setup_chat():
     chat_flow.chat_client.set_agent_type(agent_type)
     chat_flow.chat_client.set_relationship_context(relationship_context)
     chat_flow.chat_client.set_situation(situation)
+    chat_flow.chat_client.set_base_agent_desc()
 
     logger.info("Chatbot setup complete with parameters.")
     return jsonify({"message": "Chatbot setup complete!"})
@@ -70,6 +71,8 @@ def chat():
             category = strategies[strategy].category
             chat_flow.user_strategy_usage[category] += 1  # Update strategy usage stats
 
+        res_score = chat_flow.chat_client.get_res_score()
+
         # Get the bot's response
         bot_response = chat_flow.chat_client.get_response(user_message, chat_flow.chat_log)
 
@@ -77,7 +80,7 @@ def chat():
         chat_flow.chat_log.append(f"You: {user_message}")
         chat_flow.chat_log.append(f"Bot: {bot_response}")
 
-        return jsonify({"bot": bot_response})
+        return jsonify({"bot": f"{bot_response} \n\n Current resolution score: {res_score}"})
     except Exception as e:
         return jsonify({"error": f"An error occurred: {str(e)}"}), 500
 

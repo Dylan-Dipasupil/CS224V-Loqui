@@ -210,7 +210,7 @@ class ChatClient:
         """
         Creates a role description that the bot should adhere to
         """
-        desc_summary_prompt = f"You are describing me. From your perspective, the conflict you have with me is \"{self.situation}\" (mentions of \"she\" or \"he\" likely refer to me). I am a {self.agent_desc} to you. You describe me as: \"{self.relationship_context}\". Based on this, describe me in the context of our conversation. Include details about how I would talk, my demeanor, my values, and my goals. Write the description in 2nd person, using 2 short sentences." 
+        desc_summary_prompt = f"You are describing me. From your perspective, the conflict you have with me is \"{self.situation}\" (mentions of \"she\" or \"he\" likely refer to me). I am your {self.agent_desc}. You describe me as: \"{self.relationship_context}\". Based on this, describe me in the context of our conversation. Include details about how I would talk, my demeanor, my values, and my goals. Write the description in 2nd person, using 2 short sentences." 
 
         # calls llm and sets base_agent_desc var as response
         self.base_agent_desc = self.basic_prompt(desc_summary_prompt, stream=False)
