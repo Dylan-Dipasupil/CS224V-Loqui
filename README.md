@@ -10,7 +10,7 @@ Conflicts are inevitable in relationships, but how we handle them can make all t
 
 ## Key Features
 - **Emotion and Tone Simulation**: Mimics different conversational tones, helping users prepare for various scenarios.
-- **User-Directed Scenarios**: Users can specify the type of conflict they want to practice (e.g., setting boundaries, expressing concerns, apologizing).
+- **User-Directed Scenarios**: Users can specify the type of conflict and bot personality they want to practice with (e.g., setting boundaries, expressing concerns, apologizing).
 - **Feedback Reports**: Provides detailed feedback on conversational patterns and suggestions for more effective communication.
 - **Agent Types**: Choose from cooperative, neutral, or challenging agents for a more tailored practice experience.
 
@@ -32,7 +32,7 @@ Conflicts are inevitable in relationships, but how we handle them can make all t
 
 3. **Add the Together AI API key to your environment variables**:
 ```
-   export TOGETHER_API_KEY=a235d8aef8b2bb116dea5adda07245a7d0852a8cd64e3b6d4dcd56b250d4fc01
+   export TOGETHER_API_KEY=a2***01
 ```
 ---
 
