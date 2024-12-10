@@ -17,7 +17,6 @@ Conflicts are inevitable in relationships, but how we handle them can make all t
 ---
 
 ## Installation
-[More detailed instructions here](https://docs.google.com/document/d/1DmFPA9-e29MuHdP_kWUZPdi6PEQ6ETIz-_tb43D8n0w/edit?usp=sharing)
 1. **Clone the Repository**:
     ```bash
     git clone https://github.com/yourusername/CS224V-Loqui.git
