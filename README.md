@@ -2,6 +2,8 @@
 
 # Loqui: A Chatbot for Practicing Healthy Conflict Resolution in Romantic and Friendship Relationships
 
+Demo video found [here](https://drive.google.com/file/d/1fy3Gj-UqNb79hi7HnmQ1mbtTbCsW1OpL/view?usp=drive_link)
+
 ## Overview
 Loqui is an AI-powered chatbot designed to help users navigate and resolve conflicts within romantic and friendship relationships. The chatbot offers a platform for users to practice having difficult conversations in a safe, low-pressure environment, with a focus on maintaining healthy, lasting connections. By simulating various conversational scenarios and providing real-time feedback, Loqui aims to help users build confidence, improve communication skills, and learn effective conflict resolution techniques.
 
